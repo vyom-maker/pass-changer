@@ -244,22 +244,21 @@ class ScraperWorker:
         except Exception as e:
             self.log_signal.emit(f"Typing error: {e}")
 
-    def _initialize_driver(self):
-        """Initializes the Selenium WebDriver with stealth options."""
-        self.progress_update_signal.emit(5, "Initializing browser...")
-        user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-        ]
-        random_user_agent = random.choice(user_agents)
-
-        self.temp_profile_dir = tempfile.mkdtemp()
-options = webdriver.ChromeOptions()
-
-# ===== RAILWAY FIX =====
-# Always use headless on Railway
+    try:
+    self.log_signal.emit("Attempting to start ChromeDriver...")  # ✅ Indented with 4 spaces
+    service = Service(ChromeDriverManager().install())
+    self.driver = webdriver.Chrome(service=service, options=options)
+    self.log_signal.emit("✅ ChromeDriver started successfully!")
+except Exception as e:
+    self.log_signal.emit(f"ChromeDriverManager failed: {e}")
+    self.log_signal.emit("Trying fallback without service...")
+    try:
+        self.driver = webdriver.Chrome(options=options)
+        self.log_signal.emit("✅ Fallback successful!")
+    except Exception as e2:
+        self.log_signal.emit(f"Fallback also failed: {e2}")
+        raise
+        
 if self.headless or os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_SERVICE_NAME'):
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
