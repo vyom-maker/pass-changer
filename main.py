@@ -256,22 +256,38 @@ class ScraperWorker:
         random_user_agent = random.choice(user_agents)
 
         self.temp_profile_dir = tempfile.mkdtemp()
-        options = webdriver.ChromeOptions()
-        if self.headless:
-            options.add_argument("--headless=new")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-        options.add_argument(f"user-agent={random_user_agent}")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option("useAutomationExtension", False)
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument(f"--user-data-dir={self.temp_profile_dir}")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-popup-blocking")
-        options.add_argument("--start-maximized")
-        options.add_argument("--disable-infobars")
-        options.add_argument("--incognito")
-        options.add_argument("--disable-notifications")
+options = webdriver.ChromeOptions()
+
+# ===== RAILWAY FIX =====
+# Always use headless on Railway
+if self.headless or os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_SERVICE_NAME'):
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--memory-pressure-off")
+    options.add_argument("--max_old_space_size=512")
+    options.add_argument("--disable-setuid-sandbox")
+    
+    # Tell Selenium where to find Chromium on Railway
+    chromium_paths = [
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser", 
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/nix/store/*-chromium/bin/chromium",
+    ]
+    for path in chromium_paths:
+        try:
+            options.binary_location = path
+            self.log_signal.emit(f"Trying Chrome at: {path}")
+            break
+        except:
+            continue
+# ===== END RAILWAY FIX =====
+
+# Your existing code continues...
 
         width = random.randint(1024, 1440)
         height = random.randint(700, 900)
