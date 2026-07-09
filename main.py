@@ -288,25 +288,24 @@ if self.headless or os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAI
 
 # Your existing code continues...
 
-        width = random.randint(1024, 1440)
-        height = random.randint(700, 900)
-        options.add_argument(f"--window-size={width},{height}")
+            width = random.randint(1024, 1440)
+    height = random.randint(700, 900)
+    options.add_argument(f"--window-size={width},{height}")
 
-        try:
-    self.log_signal.emit("Attempting to start ChromeDriver...")
-    service = Service(ChromeDriverManager().install())
-    self.driver = webdriver.Chrome(service=service, options=options)
-    self.log_signal.emit("✅ ChromeDriver started successfully!")
-except Exception as e:
-    self.log_signal.emit(f"ChromeDriverManager failed: {e}")
-    self.log_signal.emit("Trying fallback without service...")
     try:
-        self.driver = webdriver.Chrome(options=options)
-        self.log_signal.emit("✅ Fallback successful!")
-    except Exception as e2:
-        self.log_signal.emit(f"Fallback also failed: {e2}")
-        raise
-
+        self.log_signal.emit("Attempting to start ChromeDriver...")
+        service = Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=service, options=options)
+        self.log_signal.emit("✅ ChromeDriver started successfully!")
+    except Exception as e:
+        self.log_signal.emit(f"ChromeDriverManager failed: {e}")
+        self.log_signal.emit("Trying fallback without service...")
+        try:
+            self.driver = webdriver.Chrome(options=options)
+            self.log_signal.emit("✅ Fallback successful!")
+        except Exception as e2:
+            self.log_signal.emit(f"Fallback also failed: {e2}")
+            raise
         driver = self.driver
         driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
