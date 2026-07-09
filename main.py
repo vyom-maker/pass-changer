@@ -56,7 +56,13 @@ try:
 except ValueError:
     raise ValueError("BOT_OWNER_ID must be a valid integer")
 
-HEADLESS_MODE = False
+HEADLESS_MODE = True  # Always true on Railway
+
+# Auto-detect Railway environment
+import os
+if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('RAILWAY_SERVICE_NAME'):
+    HEADLESS_MODE = True
+    print("🚀 Running on Railway - Headless mode forced")
 
 class Emojis:
     """
