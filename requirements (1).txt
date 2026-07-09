@@ -1,0 +1,13 @@
+# Discord Bot Requirements
+discord.py>=2.3.2
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# GUI Framework
+PyQt6>=6.5.0
+
+# Web Automation Requirements
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+selenium-stealth>=1.0.0
